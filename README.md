@@ -1,5 +1,5 @@
 # Updated information to be added soon!
-
+# Previous info:
 
 # Shapekey Driver Constraint Addon
 This addon makes constraining shapekey driver to bones super easy.
