@@ -1,6 +1,7 @@
 # Updated information to be added soon!
 
-## This
+## This add on makes adding Bone Drivers to Shapekeys super easy.
+
 # Previous info:
 
 # Shapekey Driver Constraint Addon
