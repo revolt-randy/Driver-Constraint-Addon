@@ -148,78 +148,217 @@ class ShapekeyDriverCreator(bpy.types.Operator):
                     self.max_value = bone.scale[i]
                     self.type = type[i]
             return
+
     
     def create_new_shape(self,context,object):
         new_shape = object.shape_key_add(name=context.active_pose_bone.name,from_mix=False)
         return new_shape.name
+    
+    
+    def adjust_limit_constraint(self, context, constraint):
+        print("\n  adjuse_limit_constraint() - Started.")
+        print("constraint type = ", constraint.type)
+        
+        print("self.type = ", self.type)
+        
+        if self.type == 'LOC_X':
+            if constraint.use_min_x == False:
+                constraint.min_x = self.min_value
+                constraint.use_min_x = True
+            else:
+                if self.min_value < constraint.min_x:
+                    constraint.min_x = self.min_value
+            
+            if constraint.use_max_x == False:
+                constraint.max_x = self.max_value
+                constraint.use_max_x = True
+            else:
+                if self.max_value > constraint.max_x:
+                    constraint.max_x = self.max_value
+                elif self.max_value < constraint.min_x:
+                    constraint.min_x = self.max_value
+                            
+        elif self.type == 'LOC_Y':
+            if constraint.use_min_y == False:
+                constraint.min_y = self.min_value
+                constraint.use_min_y = True
+            else:
+                if self.min_value < constraint.min_y:
+                    constraint.min_y = self.min_value
+            
+            if constraint.use_max_y == False:
+                constraint.max_y = self.max_value
+                constraint.use_max_y = True
+            else:
+                if self.max_value > constraint.max_y:
+                    constraint.max_y = self.max_value
+                elif self.max_value < constraint.min_y:
+                    constraint.min_y = self.max_value
+                    
+        elif self.type == 'LOC_Z':
+            if constraint.use_min_z == False:
+                constraint.min_z = self.min_value
+                constraint.use_min_z = True
+            else:
+                if self.min_value < constraint.min_z:
+                    constraint.min_z = self.min_value
+            
+            if constraint.use_max_z == False:
+                constraint.max_z = self.max_value
+                constraint.use_max_z = True
+            else:
+                if self.max_value > constraint.max_z:
+                    constraint.max_z = self.max_value
+                elif self.max_value < constraint.min_z:
+                    constraint.min_z = self.max_value
+                    
+        elif self.type == "ROT_X":
+            if constraint.use_limit_x == False:
+                constraint.use_limit_x = True
+                
+            if radians(self.min_value) < constraint.min_x:
+                constraint.min_x = radians(self.min_value)
+            if radians(self.max_value) > constraint.max_x:
+                constraint.max_x = radians(self.max_value) 
+            
+        elif self.type == "ROT_Y":
+            if constraint.use_limit_y == False:
+                constraint.use_limit_y = True
+                
+            if radians(self.min_value) < constraint.min_y:
+                constraint.min_y = radians(self.min_value)
+            if radians(self.max_value) > constraint.max_y:
+                constraint.max_y = radians(self.max_value)
+        
+        elif self.type == "ROT_Z":
+            if constraint.use_limit_z == False:
+                constraint.use_limit_z = True
+                
+            if radians(self.min_value) < constraint.min_z:
+                constraint.min_z = radians(self.min_value)
+            if radians(self.max_value) > constraint.max_z:
+                constraint.max_z = radians(self.max_value)
+        
+        elif self.type == "SCALE_X":
+            if constraint.use_min_x == False:
+                constraint.min_x = self.min_value
+                constraint.use_min_x = True
+            else:
+                if self.min_value < constraint.min_x:
+                    constraint.min_x = self.min_value
+            
+            if constraint.use_max_x == False:
+                constraint.max_x = self.max_value
+                constraint.use_max_x = True
+            else:
+                if self.max_value > constraint.max_x:
+                    constraint.max_x = self.max_value
+        
+        elif self.type == 'SCALE_Y':
+            #constraint.use_min_y = True
+            #constraint.use_max_y = True            
+            if constraint.use_min_y == False:
+                constraint.min_y = self.min_value
+                constraint.use_min_y = True
+            else:
+                if self.min_value < constraint.min_y:
+                    constraint.min_y = self.min_value
+            
+            if constraint.use_max_y == False:
+                constraint.max_y = self.max_value
+                constraint.use_max_y = True
+            else:
+                if self.max_value > constraint.max_y:
+                    constraint.max_y = self.max_value
+            
+        
+        elif self.type == 'SCALE_Z':
+            if constraint.use_min_z == False:
+                constraint.min_z = self.min_value
+                constraint.use_min_z = True
+            else:
+                if self.min_value < constraint.min_z:
+                    constraint.min_z = self.min_value
+            
+            if constraint.use_max_z == False:
+                constraint.max_z = self.max_value
+                constraint.use_max_z = True
+            else:
+                if self.max_value > constraint.max_z:
+                    constraint.max_z = self.max_value  
+            
+        constraint.owner_space = self.constraint_space
+            
+        print("\n  adjuse_limit_constraint() - ended.")
+        
+        return
+    
+
+    def add_bone_limit_constraint(self, context, type):
+        print("\n add_bone_limit_constraint() - started")
+        
+        bone = context.active_pose_bone
+        
+        print(self.type)
+        
+        if "LOC" in self.type:
+            print("LOC Found")
+            constraint = bone.constraints.new("LIMIT_LOCATION")
+        elif "ROT" in self.type:
+            print("ROT found")
+            constraint = bone.constraints.new("LIMIT_ROTATION")            
+        else:
+            print("SCALE found")
+            constraint = bone.constraints.new("LIMIT_SCALE")
+            
+        self.adjust_limit_constraint(context, constraint)
+        
+        print("\n add_bone_limit_constraint() - ended")
+        
+        return
 
 
     def add_limit_constraint(self, context):
+        print ("\nadd_limit_constraint() - started")
+        
         bone = context.active_pose_bone
+        #bone_constraints = bone.constraints
         
-        if self.type == "LOC_X":
-            constraint = bone.constraints.new("LIMIT_LOCATION")
-            constraint.use_min_x = True
-            constraint.min_x = self.min_value
-            constraint.use_max_x = True
-            constraint.max_x = self.max_value
-            constraint.owner_space = self.constraint_space
-        elif self.type == "LOC_Y":
-            constraint = bone.constraints.new("LIMIT_LOCATION")
-            constraint.use_min_y = True
-            constraint.min_y = self.min_value
-            constraint.use_max_y = True
-            constraint.max_y = self.max_value      
-            constraint.owner_space = self.constraint_space
-        elif self.type == "LOC_Z":
-            constraint = bone.constraints.new("LIMIT_LOCATION")
-            constraint.use_min_z = True
-            constraint.min_z = self.min_value
-            constraint.use_max_z = True
-            constraint.max_z = self.max_value      
-            constraint.owner_space = self.constraint_space
-        elif self.type == "ROT_X":
-            constraint = bone.constraints.new("LIMIT_ROTATION")
-            constraint.use_limit_x = True
-            constraint.min_x = radians(self.min_value)
-            constraint.max_x = radians(self.max_value)     
-            constraint.owner_space = self.constraint_space   
-        elif self.type == "ROT_Y":
-            constraint = bone.constraints.new("LIMIT_ROTATION")
-            constraint.use_limit_y = True
-            constraint.min_y = radians(self.min_value)
-            constraint.max_y = radians(self.max_value)     
-            constraint.owner_space = self.constraint_space 
-        elif self.type == "ROT_Z":
-            constraint = bone.constraints.new("LIMIT_ROTATION")
-            constraint.use_limit_z = True
-            constraint.min_z = radians(self.min_value)
-            constraint.max_z = radians(self.max_value)     
-            constraint.owner_space = self.constraint_space
-        elif self.type == "SCALE_X":
-            constraint = bone.constraints.new("LIMIT_SCALE")
-            constraint.use_min_x = True
-            constraint.min_x = self.min_value
-            constraint.use_max_x = True
-            constraint.max_x = self.max_value     
-            constraint.owner_space = self.constraint_space
-        elif self.type == "SCALE_Y":
-            constraint = bone.constraints.new("LIMIT_SCALE")
-            constraint.use_min_y = True
-            constraint.min_y = self.min_value
-            constraint.use_max_y = True
-            constraint.max_y = self.max_value     
-            constraint.owner_space = self.constraint_space         
-        elif self.type == "SCALE_Z":
-            constraint = bone.constraints.new("LIMIT_SCALE")
-            constraint.use_min_z = True
-            constraint.min_z = self.min_value
-            constraint.use_max_z = True
-            constraint.max_z = self.max_value     
-            constraint.owner_space = self.constraint_space          
+        if len(bone.constraints) == 0:
+            print("No bone constraints")
+            self.add_bone_limit_constraint(context, type)
+        else:
+            
+            print("\n bone constraints found -")
+            
+            for constraint in bone.constraints:
+                print(constraint.type)
+                                
+                if "LIMIT_LOCATION" in constraint.type :
+                    print ("LIMIT Location found")
+                    if "LOC" in self.type:
+                        self.adjust_limit_constraint(context, constraint)
+                        print("exiting add_limit_constraint()")
+                        return
+                elif "LIMIT_ROTATION" in constraint.type:
+                    print('LIMIT Rotation found')
+                    if "ROT" in self.type:
+                        self.adjust_limit_constraint(context, constraint)
+                        print("exiting add_limit_constraint()")
+                        return
+                elif "LIMIT_SCALE" in constraint.type:
+                    print('LIMIT Scale found')
+                    if "SCALE" in self.type:
+                        self.adjust_limit_constraint(context, constraint)
+                        print("exiting add_limit_constraint()")
+                        return
+                
+            print("No limiting constraints found on bone")
+            self.add_bone_limit_constraint(context, type)
+                
+        print ("\nadd_limit_constraint() - ended")
         
-        return
-     
+        return    
     
     
     def execute(self, context):
@@ -276,12 +415,10 @@ class ShapekeyDriverCreator(bpy.types.Operator):
         self.report({'INFO'},msg)
         return {'FINISHED'}
     
-    
-        
+            
     def invoke(self, context, event):
         wm = context.window_manager 
-        
-        
+                
         if len(context.selected_objects) != 2:
             self.report({'WARNING'},'Select a Mesh Object and then a Pose Bone')
             return{'FINISHED'}
