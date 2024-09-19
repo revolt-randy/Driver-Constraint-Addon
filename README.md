@@ -8,7 +8,7 @@ This addon makes constraining shapekey driver to bones super easy.
 - Set the all values and apply
 - Thats it, your property now can be driven by the bone
 
-## This code was forked from - https://github.com/ndee85/Driver-Constraint-Addon 
+### This code was forked from - https://github.com/ndee85/Driver-Constraint-Addon 
 - Changed the name to 'Shapekey Driver Creator' to avoid any confusion to blender's constraints.
 - Added the option to add Limit Location/Rotation/Scale constraints to the bone, limiting the
   bone's movement to the ones defined for the shapekey. This feature is limited in what it can
